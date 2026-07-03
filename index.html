@@ -4,19 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=240, initial-scale=1.0, user-scalable=no">
     <title>Color Picker</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <div id="app">
         <header>
-            <h1>Color Picker</h1>
-            <div class="status-dot" id="statusDot" title="Camera status"></div>
+            <h1>Color&nbsp;Picker</h1>
+            <div class="header-right">
+                <span class="rev-label">Rev&nbsp;01</span>
+                <div class="status-dot" id="statusDot" title="Camera status"></div>
+            </div>
         </header>
 
         <main>
             <!-- Camera view -->
             <div class="view active" id="cameraView">
                 <div class="cam-frame">
+                    <span class="bracket bracket-tl"></span>
+                    <span class="bracket bracket-tr"></span>
+                    <span class="bracket bracket-bl"></span>
+                    <span class="bracket bracket-br"></span>
                     <video id="camPreview" autoplay playsinline muted></video>
                     <div class="cam-fallback" id="camFallback">Tap to open camera</div>
                 </div>
@@ -27,18 +35,26 @@
 
             <!-- Result view -->
             <div class="view" id="resultView">
-                <canvas id="photoCanvas" width="160" height="118"></canvas>
+                <div class="cam-frame cam-frame-small">
+                    <span class="bracket bracket-tl"></span>
+                    <span class="bracket bracket-tr"></span>
+                    <span class="bracket bracket-bl"></span>
+                    <span class="bracket bracket-br"></span>
+                    <canvas id="photoCanvas" width="160" height="118"></canvas>
+                </div>
 
                 <div class="swatch-strip" id="swatchStrip"></div>
 
                 <div class="preview-row">
                     <div class="color-preview" id="colorPreview"></div>
                     <div class="codes">
-                        <div class="code-row"><span class="code-label">HEX</span><span class="code-value" id="hexValue">#000000</span></div>
-                        <div class="code-row"><span class="code-label">RGB</span><span class="code-value" id="rgbValue">0, 0, 0</span></div>
-                        <div class="code-row"><span class="code-label">HSL</span><span class="code-value" id="hslValue">0, 0%, 0%</span></div>
+                        <div class="code-row"><span class="code-label">01&nbsp;Hex</span><span class="code-value" id="hexValue">#000000</span></div>
+                        <div class="code-row"><span class="code-label">02&nbsp;Rgb</span><span class="code-value" id="rgbValue">0, 0, 0</span></div>
+                        <div class="code-row"><span class="code-label">03&nbsp;Hsl</span><span class="code-value" id="hslValue">0, 0%, 0%</span></div>
                     </div>
                 </div>
+
+                <div class="section-header">04&nbsp;&nbsp;Edit&nbsp;swatch</div>
 
                 <div class="sliders">
                     <div class="slider-row">
@@ -59,7 +75,7 @@
                 </div>
 
                 <div class="pantone-row">
-                    <button id="pantoneBtn" class="btn-secondary">Get Pantone match (approx.)</button>
+                    <button id="pantoneBtn" class="btn-secondary">05&nbsp;&nbsp;Pantone&nbsp;match&nbsp;&rarr;</button>
                 </div>
 
                 <div class="hint">Tap: sample &middot; Scroll: swatches &middot; Hold: retake</div>
@@ -67,7 +83,7 @@
 
             <!-- Pantone detail view -->
             <div class="view" id="pantoneView">
-                <button id="pantoneBackBtn" class="btn-secondary back-btn">&larr; Back</button>
+                <button id="pantoneBackBtn" class="btn-secondary back-btn">&larr;&nbsp;Back</button>
                 <div class="pantone-detail">
                     <div class="pantone-swatch" id="pantoneSwatch"></div>
                     <div class="pantone-text" id="pantoneText">Looking up&hellip;</div>
