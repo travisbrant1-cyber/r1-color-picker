@@ -3,6 +3,7 @@
 
   var cameraView = document.getElementById('cameraView');
   var resultView = document.getElementById('resultView');
+  var pantoneView = document.getElementById('pantoneView');
   var camPreview = document.getElementById('camPreview');
   var camFallback = document.getElementById('camFallback');
   var fileInput = document.getElementById('fileInput');
@@ -24,7 +25,9 @@
   var valOut = document.getElementById('valOut');
 
   var pantoneBtn = document.getElementById('pantoneBtn');
-  var pantoneResult = document.getElementById('pantoneResult');
+  var pantoneBackBtn = document.getElementById('pantoneBackBtn');
+  var pantoneSwatch = document.getElementById('pantoneSwatch');
+  var pantoneText = document.getElementById('pantoneText');
 
   var currentView = 'camera';
   var videoActive = false;
@@ -91,6 +94,7 @@
     currentView = name;
     cameraView.classList.toggle('active', name === 'camera');
     resultView.classList.toggle('active', name === 'result');
+    pantoneView.classList.toggle('active', name === 'pantone');
   }
 
   // ---- Camera ----
@@ -180,7 +184,6 @@
   function onPhotoCaptured() {
     swatches = extractDominantColors(6);
     renderSwatchStrip();
-    pantoneResult.textContent = '';
     if (swatches.length) selectSwatch(0);
     else setColorFromRGB({ r: 128, g: 128, b: 128 });
     showView('result');
@@ -275,21 +278,22 @@
   }
 
   function requestPantone() {
+    pantoneSwatch.style.background = hexValue.textContent;
+    showView('pantone');
+
     if (typeof PluginMessageHandler === 'undefined') {
-      pantoneResult.textContent = 'Needs the on-device LLM — try this on your R1.';
+      pantoneText.textContent = 'Needs the on-device LLM — try this on your R1.';
       return;
     }
-    pantoneResult.textContent = 'Looking up…';
-    pantoneBtn.disabled = true;
+    pantoneText.textContent = 'Looking up…';
     clearTimeout(pantoneTimeout);
     clearTimeout(pantoneStillThinkingTimeout);
 
     pantoneStillThinkingTimeout = setTimeout(function () {
-      pantoneResult.textContent = 'Still thinking…';
+      pantoneText.textContent = 'Still thinking…';
     }, 8000);
     pantoneTimeout = setTimeout(function () {
-      pantoneResult.textContent = 'No response — try again.';
-      pantoneBtn.disabled = false;
+      pantoneText.textContent = 'No response — try again.';
     }, 30000);
 
     PluginMessageHandler.postMessage(JSON.stringify({
@@ -301,28 +305,29 @@
   window.onPluginMessage = function (data) {
     clearTimeout(pantoneTimeout);
     clearTimeout(pantoneStillThinkingTimeout);
-    pantoneBtn.disabled = false;
     var parsed = null;
     if (data) {
       parsed = extractJsonObject(data.data) || extractJsonObject(data.message);
     }
     if (parsed && parsed.pantoneName) {
-      pantoneResult.textContent = parsed.pantoneName + (parsed.pantoneCode ? ' (' + parsed.pantoneCode + ', approx.)' : ' (approx.)');
+      pantoneText.textContent = parsed.pantoneName + (parsed.pantoneCode ? ' (' + parsed.pantoneCode + ')' : '') + ' — approx.';
     } else if (data && (data.message || data.data)) {
-      pantoneResult.textContent = String(data.message || data.data).slice(0, 60) + ' (approx.)';
+      pantoneText.textContent = String(data.message || data.data).slice(0, 160) + ' — approx.';
     } else {
-      pantoneResult.textContent = 'Could not parse a match.';
+      pantoneText.textContent = 'Could not parse a match.';
     }
   };
 
   pantoneBtn.addEventListener('click', requestPantone);
+  pantoneBackBtn.addEventListener('click', function () { showView('result'); });
 
   // ---- Hardware events ----
   window.addEventListener('sideClick', function () {
     if (currentView === 'camera') requestCapture();
   });
   window.addEventListener('longPressStart', function () {
-    if (currentView === 'result') showView('camera');
+    if (currentView === 'pantone') showView('result');
+    else if (currentView === 'result') showView('camera');
   });
   window.addEventListener('scrollUp', function () {
     if (currentView === 'result') cycleSwatch(-1);
