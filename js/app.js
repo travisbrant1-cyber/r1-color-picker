@@ -262,6 +262,18 @@
   });
 
   // ---- Pantone (approximate, LLM best-guess) ----
+  var pantoneStillThinkingTimeout = null;
+
+  function extractJsonObject(text) {
+    if (!text) return null;
+    try { return JSON.parse(text); } catch (e) {}
+    var match = text.match(/\{[^{}]*\}/);
+    if (match) {
+      try { return JSON.parse(match[0]); } catch (e) {}
+    }
+    return null;
+  }
+
   function requestPantone() {
     if (typeof PluginMessageHandler === 'undefined') {
       pantoneResult.textContent = 'Needs the on-device LLM — try this on your R1.';
@@ -270,29 +282,34 @@
     pantoneResult.textContent = 'Looking up…';
     pantoneBtn.disabled = true;
     clearTimeout(pantoneTimeout);
+    clearTimeout(pantoneStillThinkingTimeout);
+
+    pantoneStillThinkingTimeout = setTimeout(function () {
+      pantoneResult.textContent = 'Still thinking…';
+    }, 8000);
     pantoneTimeout = setTimeout(function () {
       pantoneResult.textContent = 'No response — try again.';
       pantoneBtn.disabled = false;
-    }, 8000);
+    }, 30000);
 
     PluginMessageHandler.postMessage(JSON.stringify({
-      message: 'Given the hex color ' + hexValue.textContent + ', respond ONLY with JSON in this exact format: {"pantoneName":"<closest common Pantone-style color name>","pantoneCode":"<approximate Pantone code>"}. This is an approximation, not an official Pantone match.',
+      message: 'This is a fun approximation game, not an official lookup. For the color ' + hexValue.textContent + ', make your best informal guess at the closest common paint or Pantone-style color name people might call it, plus a made-up-sounding approximate code for fun. Reply with just this JSON, nothing else: {"pantoneName":"<name>","pantoneCode":"<code>"}',
       useLLM: true
     }));
   }
 
   window.onPluginMessage = function (data) {
     clearTimeout(pantoneTimeout);
+    clearTimeout(pantoneStillThinkingTimeout);
     pantoneBtn.disabled = false;
     var parsed = null;
-    if (data && data.data) {
-      try { parsed = JSON.parse(data.data); } catch (e) {}
-    }
-    if (!parsed && data && data.message) {
-      try { parsed = JSON.parse(data.message); } catch (e) {}
+    if (data) {
+      parsed = extractJsonObject(data.data) || extractJsonObject(data.message);
     }
     if (parsed && parsed.pantoneName) {
       pantoneResult.textContent = parsed.pantoneName + (parsed.pantoneCode ? ' (' + parsed.pantoneCode + ', approx.)' : ' (approx.)');
+    } else if (data && (data.message || data.data)) {
+      pantoneResult.textContent = String(data.message || data.data).slice(0, 60) + ' (approx.)';
     } else {
       pantoneResult.textContent = 'Could not parse a match.';
     }
