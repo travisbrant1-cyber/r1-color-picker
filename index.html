@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=240, initial-scale=1.0, user-scalable=no">
+    <title>Color Picker</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>Color Picker</h1>
+            <div class="status-dot" id="statusDot" title="Camera status"></div>
+        </header>
+
+        <main>
+            <!-- Camera view -->
+            <div class="view active" id="cameraView">
+                <div class="cam-frame">
+                    <video id="camPreview" autoplay playsinline muted></video>
+                    <div class="cam-fallback" id="camFallback">Tap to open camera</div>
+                </div>
+                <input type="file" id="fileInput" accept="image/*" capture="environment" class="visually-hidden">
+                <button id="captureBtn" class="btn-primary">Capture</button>
+                <div class="hint">Click PTT or tap Capture &middot; standard camera access</div>
+            </div>
+
+            <!-- Result view -->
+            <div class="view" id="resultView">
+                <canvas id="photoCanvas" width="160" height="118"></canvas>
+
+                <div class="swatch-strip" id="swatchStrip"></div>
+
+                <div class="preview-row">
+                    <div class="color-preview" id="colorPreview"></div>
+                    <div class="codes">
+                        <div class="code-row"><span class="code-label">HEX</span><span class="code-value" id="hexValue">#000000</span></div>
+                        <div class="code-row"><span class="code-label">RGB</span><span class="code-value" id="rgbValue">0, 0, 0</span></div>
+                        <div class="code-row"><span class="code-label">HSL</span><span class="code-value" id="hslValue">0, 0%, 0%</span></div>
+                    </div>
+                </div>
+
+                <div class="sliders">
+                    <div class="slider-row">
+                        <span class="slider-label">H</span>
+                        <input type="range" id="hueSlider" min="0" max="360" value="0">
+                        <span class="slider-value" id="hueOut">0</span>
+                    </div>
+                    <div class="slider-row">
+                        <span class="slider-label">S</span>
+                        <input type="range" id="satSlider" min="0" max="100" value="0">
+                        <span class="slider-value" id="satOut">0</span>
+                    </div>
+                    <div class="slider-row">
+                        <span class="slider-label">V</span>
+                        <input type="range" id="valSlider" min="0" max="100" value="0">
+                        <span class="slider-value" id="valOut">0</span>
+                    </div>
+                </div>
+
+                <div class="pantone-row">
+                    <button id="pantoneBtn" class="btn-secondary">Get Pantone match (approx.)</button>
+                    <div class="pantone-result" id="pantoneResult"></div>
+                </div>
+
+                <div class="hint">Tap photo: sample pixel &middot; Scroll: swatches &middot; Hold PTT: retake</div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
